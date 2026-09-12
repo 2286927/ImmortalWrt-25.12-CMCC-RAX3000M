@@ -752,10 +752,10 @@ jobs:
             exit 1
           fi
 
-          # 重命名固件
-          for file in *sysupgrade* *factory*; do
+          # 重命名固件（sysupgrade / factory / initramfs-recovery）
+          for file in *sysupgrade* *factory* *initramfs*; do
             if [ -f "$file" ] && ! echo "$file" | grep -q -- "-bl2"; then
-              TYPE=$(echo "$file" | grep -o "sysupgrade\|factory")
+              TYPE=$(echo "$file" | grep -o "sysupgrade\|factory\|initramfs-recovery\|initramfs")
               EXT="${file##*.}"
               NEW_NAME="${DEVICE_MODEL}_${FIRMWARE_VERSION}${FILE_DATE}_${TYPE}.${EXT}"
               echo "🔧 重命名：$file → $NEW_NAME"
@@ -867,7 +867,7 @@ jobs:
           tag_name: ${{ steps.tag.outputs.RELEASE_TAG }}
           body_path: release
           files: |
-            ${{ env.UPLOAD_ALL_FILES == 'true' && format('{0}/*', env.FIRMWARE) || format('{0}/*sysupgrade*.*', env.FIRMWARE) }}
+            ${{ env.UPLOAD_ALL_FILES == 'true' && format('{0}/*', env.FIRMWARE) || format('{0}/*{{sysupgrade,initramfs}}*.*', env.FIRMWARE) }}
 
       - name: 验证Release创建
         run: |
