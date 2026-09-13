@@ -223,8 +223,8 @@ jobs:
           sudo rm -rf /var/lib/docker >/dev/null 2>&1
 
           # 清理 APT 缓存
-          sudo apt-get clean >/dev/null 2>&1
-          sudo apt-get autoremove -y >/dev/null 2>&1
+          sudo apt-get clean >/dev/null 2>&1 || true
+          sudo apt-get autoremove -y >/dev/null 2>&1 || true
 
           # 清理大文件
           sudo rm -rf /usr/local/share/powershell >/dev/null 2>&1
