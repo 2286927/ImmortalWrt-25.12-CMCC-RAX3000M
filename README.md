@@ -19,7 +19,7 @@
 - 增删白名单：编辑 `scripts/common/package-sync.sh` 中的 `WHITELIST` 段（每行一个包名，`# ---------- xxx ----------` 为分类注释）。
 
 ## 功能开关（workflow 默认值）
-- Docker 集成：开（`config/docker.config`）
+- Docker 集成：关（`config/docker.config`）
 - keepalived 主从路由：开（`config/keepalived.config`，含 luci-app-keepalived-ha）
 - OpenClash：开（官方 feed 版，`config/openclash.config` 注入依赖）
 
