@@ -8,7 +8,7 @@
 - 修改位置：`scripts/25.12/diy-part2.sh`（作用于 base-files 的 config_generate，幂等可重复执行）
 
 ## 使用方法
-1. 将本包全部内容上传到你的 GitHub 仓库（`.github` 为隐藏目录，务必包含）。
+1. 将本仓库全部内容 fork 到你的 GitHub 仓库。
 2. 进入仓库 **Actions** 页 → 选择 **ImmortalWrt-25.12** → **Run workflow**，保持默认选项（`openwrt-25.12` 分支 + `25.12.config`）。
 3. 首次编译约 2-4 小时，成功后到 **Releases** 下载 `sysupgrade.itb`（常规升级）；需要底层刷机时开启"上传所有文件"获取 GPT/preloader/FIP/recovery 全量包。
 4. 刷机有风险！具体刷写步骤参见完整版项目包内的 `files/刷机教程.md`。
