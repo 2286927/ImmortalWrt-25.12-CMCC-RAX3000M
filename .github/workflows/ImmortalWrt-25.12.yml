@@ -105,6 +105,8 @@ env:
   ENABLE_OPENCLASH: ${{ github.event.inputs.enable_openclash || 'true' }}
   ENABLE_WECHATPUSH: ${{ github.event.inputs.enable_wechatpush || 'false' }}
   UPLOAD_ALL_FILES: ${{ github.event.inputs.upload_all_files || 'false' }}
+  LAN_IP: '172.16.7.1'
+  LAN_HOSTNAME: 'CMCC-RAX3000M'
 
 jobs:
   check-source-updates:
@@ -784,6 +786,28 @@ jobs:
           echo "status=success" >> "$GITHUB_OUTPUT"
           echo "🎉 固件整理完成"
 
+      - name: 生成值守升级固定资产
+        if: steps.compile.outputs.status == 'success'
+        run: |
+          set -e
+          PREFIX="autoupdate-RAX3000M-25.12"
+          SYSUPGRADE_FILE=$(ls "$FIRMWARE"/*sysupgrade*.itb 2>/dev/null | head -n 1 || true)
+          [ -z "$SYSUPGRADE_FILE" ] && SYSUPGRADE_FILE=$(ls "$FIRMWARE"/*sysupgrade* 2>/dev/null | head -n 1 || true)
+          if [ -z "$SYSUPGRADE_FILE" ]; then
+            echo "❌ 未找到 sysupgrade 镜像，无法生成值守升级资产"
+            exit 1
+          fi
+          cp "$SYSUPGRADE_FILE" "$FIRMWARE/${PREFIX}-sysupgrade.itb"
+          ( cd "$FIRMWARE" && sha256sum "${PREFIX}-sysupgrade.itb" > "${PREFIX}-sysupgrade.itb.sha256" )
+          {
+            echo "RUN_ID=${{ github.run_id }}"
+            echo "BUILD=${{ env.FIRMWARE_VERSION }}${{ env.FILE_DATE }}"
+            echo "DEVICE=$DEVICE_MODEL"
+            echo "BRANCH=$REPO_BRANCH"
+          } > "$FIRMWARE/${PREFIX}-version.txt"
+          echo ">>> 值守升级固定资产："
+          ls -l "$FIRMWARE"/autoupdate-*
+
       - name: 上传 bin
         uses: actions/upload-artifact@v5
         if: steps.compile.outputs.status == 'success' && github.event_name == 'workflow_dispatch' && env.UPLOAD_BIN_DIR == 'true'
@@ -823,7 +847,8 @@ jobs:
             echo "固件版本: ImmortalWrt ${{ env.FIRMWARE_VERSION }}"
             echo "设备型号: $DEVICE_MODEL"
             echo "编译时间: $(date +'%Y-%m-%d %H:%M %Z')"
-            echo "后台地址: 192.168.2.1 或 http://immortalwrt.lan/"
+            echo "后台地址: ${LAN_IP} 或 http://${LAN_HOSTNAME}.lan/"
+            echo "值守升级固定地址: https://github.com/${{ github.repository }}/releases/latest/download/autoupdate-RAX3000M-25.12-sysupgrade.itb"
             echo "源代码仓库: $REPO_URL"
             echo "源仓库分支: $REPO_BRANCH"
             echo "源仓库提交: [查看编译时提交]($SOURCE_COMMIT_URL)"
@@ -885,6 +910,7 @@ jobs:
           body_path: release
           files: |
             ${{ env.UPLOAD_ALL_FILES == 'true' && format('{0}/*', env.FIRMWARE) || format('{0}/*{{sysupgrade,initramfs}}*.*', env.FIRMWARE) }}
+            ${{ env.FIRMWARE }}/autoupdate-*
 
       - name: 验证Release创建
         run: |
