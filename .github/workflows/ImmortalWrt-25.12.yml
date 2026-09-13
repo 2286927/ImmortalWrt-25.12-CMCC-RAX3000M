@@ -50,7 +50,7 @@ on:
         description: '集成 keepalived'
         type: boolean
         required: true
-        default: true
+        default: false
       enable_docker:
         description: '集成 Docker'
         type: boolean
