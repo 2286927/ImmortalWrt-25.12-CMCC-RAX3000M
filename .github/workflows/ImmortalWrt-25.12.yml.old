@@ -1,4 +1,4 @@
-name: ImmortalWrt-25.12
+name: ImmortalWrt-25.12-old
 
 on:
   repository_dispatch:
