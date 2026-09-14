@@ -520,6 +520,21 @@ jobs:
           sed -n '/define Device\/cmcc_rax3000m_common/,/endef/p' \
             target/linux/mediatek/image/filogic.mk
 
+      - name: 添加 keepalived-ha 插件
+        if: env.ENABLE_KEEPALIVED == 'true'
+        run: |
+          cd openwrt
+          git clone --depth=1 https://github.com/PlanetEditorX/luci-app-build.git
+          mkdir -p package/luci-app-keepalived-ha
+          cp -r luci-app-build/luci-app-keepalived-ha/* package/luci-app-keepalived-ha/
+          echo ">>> 检查 keepalived-ha 是否启用："
+          grep luci-app-keepalived-ha .config || echo "❌ keepalived-ha 未启用"
+
+      - name: 生成编译配置
+        run: |
+          cd openwrt
+          make defconfig
+
       - name: 启用 ccache
         run: |
           cd "$GITHUB_WORKSPACE/openwrt"
@@ -535,21 +550,9 @@ jobs:
 
           echo "=== 当前 ccache 配置 ==="
           grep -n "CONFIG_CCACHE" .config || echo "❌ ccache 配置写入失败"
+          echo "=== defconfig 后写入确认 ==="
+          grep -E "^CONFIG_CCACHE" .config || echo "❌ ccache 配置写入失败"
 
-      - name: 添加 keepalived-ha 插件
-        if: env.ENABLE_KEEPALIVED == 'true'
-        run: |
-          cd openwrt
-          git clone --depth=1 https://github.com/PlanetEditorX/luci-app-build.git
-          mkdir -p package/luci-app-keepalived-ha
-          cp -r luci-app-build/luci-app-keepalived-ha/* package/luci-app-keepalived-ha/
-          echo ">>> 检查 keepalived-ha 是否启用："
-          grep luci-app-keepalived-ha .config || echo "❌ keepalived-ha 未启用"
-
-      - name: 生成编译配置
-        run: |
-          cd openwrt
-          make defconfig
 
       - name: 下载源码包
         run: |
