@@ -73,6 +73,7 @@ config main 'main'
 	option prefix 'autoupdate-RAX3000M-25.12'
 	option notify_url ''
 	option auto_apply '0'
+	option mirror 'auto'
 EOF
 
     echo "${GITHUB_RUN_ID:-0}" > files/etc/autoupdate.build
